@@ -15,13 +15,13 @@ else:
 
 if not os.path.exists(path):
     test_data = [
-        {"job-name": "Программист Python", "salary": 150000, "city": "Москва"},
-        {"job-name": "Разработчик C++", "salary": 140000, "city": "Санкт-Петербург"},
-        {"job-name": "Программист Java", "salary": 130000, "city": "Новосибирск"},
-        {"job-name": "Программист JavaScript", "salary": 120000, "city": "Екатеринбург"},
-        {"job-name": "Аналитик данных", "salary": 110000, "city": "Москва"},
-        {"job-name": "Программист Python", "salary": 160000, "city": "Казань"},
-        {"job-name": "программист Python", "salary": 170000, "city": "Москва"}
+        {"job-name": "Программист Python", "salary": 180000, "city": "Москва"},
+        {"job-name": "DevOps инженер", "salary": 160000, "city": "Санкт-Петербург"},
+        {"job-name": "программист C++", "salary": 140000, "city": "Новосибирск"},
+        {"job-name": "Бэкенд разработчик", "salary": 150000, "city": "Екатеринбург"},
+        {"job-name": "Тестировщик ПО", "salary": 100000, "city": "Москва"},
+        {"job-name": "Программист Java", "salary": 190000, "city": "Казань"},
+        {"job-name": "программист python", "salary": 200000, "city": "Москва"}
     ]
     with open('data_light.json', 'w', encoding='utf-8') as f:
         json.dump(test_data, f, ensure_ascii=False, indent=2)
