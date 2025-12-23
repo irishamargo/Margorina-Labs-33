@@ -38,20 +38,18 @@ BOOKS_DATABASE = {
     ]
 }
 
-# ==================== КОМАНДЫ БОТА ====================
-
-"""Обработчик команды /start"""
+# Обработчик команды /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     welcome_text = (
-        f"📚 *Добро пожаловать в Электронную Библиотеку!*\n\n"
+        f"*Добро пожаловать в Электронную Библиотеку!*\n\n"
         "Выберите жанр книг:"
     )
 
     # Создаем reply-кнопки с жанрами
     keyboard = [
-        ['📖 Фантастика', '🔍 Детектив'],
-        ['💖 Роман', '🐉 Фэнтези']
+        ['Фантастика', 'Детектив'],
+        ['Роман', 'Фэнтези']
     ]
 
     reply_markup = ReplyKeyboardMarkup(
@@ -67,16 +65,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         parse_mode='Markdown'
     )
 
-"""Обработка выбора жанра из reply-кнопок"""
+# Обработка выбора жанра из reply-кнопок
 async def handle_genre_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = update.message.text
 
     # Определяем жанр по кнопке
     genre_mapping = {
-        '📖 Фантастика': 'Фантастика',
-        '🔍 Детектив': 'Детектив',
-        '💖 Роман': 'Роман',
-        '🐉 Фэнтези': 'Фэнтези'
+        'Фантастика': 'Фантастика',
+        'Детектив': 'Детектив',
+        'Роман': 'Роман',
+        'Фэнтези': 'Фэнтези'
     }
 
     selected = genre_mapping.get(text)
@@ -96,22 +94,22 @@ async def handle_genre_selection(update: Update, context: ContextTypes.DEFAULT_T
 
         # Добавляем кнопку назад
         keyboard.append([
-            InlineKeyboardButton("🔙 Назад к выбору жанра", callback_data="back_to_genres")
+            InlineKeyboardButton("Назад к выбору жанра", callback_data="back_to_genres")
         ])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await update.message.reply_text(
-            f"*📚 Книги в жанре '{selected}':*\n\n"
+            f"*Книги в жанре '{selected}':*\n\n"
             f"Выберите книгу:",
             reply_markup=reply_markup,
             parse_mode='Markdown'
         )
 
-"""Обработка нажатий на inline-кнопки с книгами"""
+# Обработка нажатий на inline-кнопки с книгами
 async def handle_book_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    await query.answer()  # Убираем "часики"
+    await query.answer()
 
     data = query.data
 
@@ -131,17 +129,17 @@ async def handle_book_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 book = BOOKS_DATABASE[genre][book_index]
                 await show_book_info(query, book, genre)
 
-"""Показать информацию о книге"""
+# Показать информацию о книге
 async def show_book_info(query, book, genre):
     # Создаем кнопку назад
     keyboard = [[
-        InlineKeyboardButton("🔙 Назад к списку книг", callback_data=f"back_to_{genre}")
+        InlineKeyboardButton("Назад к списку книг", callback_data=f"back_to_{genre}")
     ]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     book_info = (
-        f"*📖 {book['title']}*\n\n"
+        f"*{book['title']}*\n\n"
         f"*Автор:* {book['author']}\n"
         f"*Год издания:* {book['year']}\n"
         f"*Жанр:* {genre}\n\n"
@@ -154,11 +152,11 @@ async def show_book_info(query, book, genre):
         parse_mode='Markdown'
     )
 
-"""Показать меню с жанрами"""
+# Показать меню с жанрами
 async def show_genres_menu(query):
     keyboard = [
-        ['📖 Фантастика', '🔍 Детектив'],
-        ['💖 Роман', '🐉 Фэнтези']
+        ['Фантастика', 'Детектив'],
+        ['Роман', 'Фэнтези']
     ]
 
     reply_markup = ReplyKeyboardMarkup(
@@ -169,12 +167,12 @@ async def show_genres_menu(query):
     )
 
     await query.message.reply_text(
-        "*📚 Выберите жанр книг:*",
+        "*Выберите жанр книг:*",
         reply_markup=reply_markup,
         parse_mode='Markdown'
     )
 
-"""Обработка кнопки назад к списку книг"""
+# Обработка кнопки назад к списку книг
 async def handle_back_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
@@ -184,20 +182,19 @@ async def handle_back_button(update: Update, context: ContextTypes.DEFAULT_TYPE)
         # Извлекаем название жанра, например, "Фантастика"
         genre = data.replace("back_to_", "")
 
-        # Важно: проверяем, что такой жанр существует
         if genre in BOOKS_DATABASE:
             await show_genre_books(query, genre)
         else:
             # Если жанр не найден (например, была ошибка в данных), сообщаем пользователю
             await query.answer(f"Жанр '{genre}' не найден.", show_alert=True)
 
-"""Обработка кнопки 'Назад к выбору жанра' (back_to_genres)"""
+# Обработка кнопки 'Назад к выбору жанра' (back_to_genres)
 async def handle_back_to_genres(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    await query.answer()  # Убираем "часики" на кнопке
+    await query.answer()
     await show_genres_menu(query)  # Показываем меню с reply-кнопками жанров
 
-"""Показать книги выбранного жанра"""
+# Показать книги выбранного жанра
 async def show_genre_books(query, genre):
     books = BOOKS_DATABASE[genre]
 
@@ -211,22 +208,19 @@ async def show_genre_books(query, genre):
         ])
 
     keyboard.append([
-        InlineKeyboardButton("🔙 Назад к выбору жанра", callback_data="back_to_genres")
+        InlineKeyboardButton("Назад к выбору жанра", callback_data="back_to_genres")
     ])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await query.edit_message_text(
-        f"*📚 Книги в жанре '{genre}':*\n\n"
+        f"*Книги в жанре '{genre}':*\n\n"
         f"Выберите книгу:",
         reply_markup=reply_markup,
         parse_mode='Markdown'
     )
 
-# ==================== ОСНОВНАЯ ФУНКЦИЯ ====================
-
 def main() -> None:
-    """Запуск бота"""
     # Создаем приложение
     application = Application.builder().token(TOKEN).build()
 
@@ -236,7 +230,7 @@ def main() -> None:
     # Обработчик выбора жанра из reply-кнопок
     application.add_handler(MessageHandler(
         filters.TEXT & ~filters.COMMAND &
-        filters.Regex(r'^(📖 Фантастика|🔍 Детектив|💖 Роман|🐉 Фэнтези)$'),
+        filters.Regex(r'^(Фантастика|Детектив|Роман|Фэнтези)$'),
         handle_genre_selection
     ))
 
@@ -245,11 +239,6 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_back_button, pattern="^back_to_"))
     application.add_handler(CallbackQueryHandler(handle_book_selection, pattern="^book_"))
 
-    # Запускаем бота
-    print("🤖 Бот электронной библиотеки запускается...")
-    print("📚 Откройте Telegram и найдите вашего бота")
-    print("🛑 Нажмите Ctrl+C для остановки")
-
     application.run_polling()
 
 # Точка входа
@@ -257,4 +246,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print("\n🛑 Бот остановлен")
+        print("\nБот остановлен")
