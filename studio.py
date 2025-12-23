@@ -6,43 +6,41 @@ import asyncio
 # Определяем состояния
 SELECT_SERVICE, SELECT_MASTER, SELECT_DAY, SELECT_TIME = range(4)
 
-# Данные (можно хранить в словаре)
+# Данные
 SERVICES = {
     "haircut": {
-        "name": "💇 Стрижка",
+        "name": "Стрижка",
         "masters": ["Анна (опыт 5 лет)", "Иван (стилист)", "Мария (детский мастер)"]
     },
     "manicure": {
-        "name": "💅 Маникюр",
+        "name": "Маникюр",
         "masters": ["Ольга (гель-лак)", "Екатерина (аппаратный)", "Светлана (европейский)"]
     },
     "massage": {
-        "name": "🧖‍♀️ Массаж",
+        "name": "Массаж",
         "masters": ["Алексей (спортивный)", "Дарья (релакс)", "Михаил (лечебный)"]
     }
 }
 
-# ========== СОСТОЯНИЕ 1: Выбор услуги ==========
+#Выбор услуги
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Начало работы - выбор услуги"""
     context.user_data.clear()
 
     keyboard = [
-        [InlineKeyboardButton("💇 Стрижка", callback_data="service_haircut")],
-        [InlineKeyboardButton("💅 Маникюр", callback_data="service_manicure")],
-        [InlineKeyboardButton("🧖‍♀️ Массаж", callback_data="service_massage")],
+        [InlineKeyboardButton("Стрижка", callback_data="service_haircut")],
+        [InlineKeyboardButton("Маникюр", callback_data="service_manicure")],
+        [InlineKeyboardButton("Массаж", callback_data="service_massage")],
     ]
 
     await update.message.reply_text(
-        "✨ Добро пожаловать в салон красоты!\nВыберите услугу:",
+        "Добро пожаловать в салон красоты!\nВыберите услугу:",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
     return SELECT_SERVICE
 
-# ========== СОСТОЯНИЕ 2: Выбор мастера ==========
+#Обработка выбора услуги и переход к выбору мастера
 async def select_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработка выбора услуги -> переход к выбору мастера"""
     query = update.callback_query
     await query.answer()
 
@@ -50,7 +48,7 @@ async def select_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
     service_type = query.data.replace("service_", "")
 
     if service_type not in SERVICES:
-        await query.edit_message_text("❌ Ошибка: услуга не найдена")
+        await query.edit_message_text("Ошибка: услуга не найдена")
         return ConversationHandler.END
 
     service = SERVICES[service_type]
@@ -67,7 +65,7 @@ async def select_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard.append([InlineKeyboardButton(master, callback_data=f"master_{idx}")])
 
     # Кнопка возврата к выбору услуги
-    keyboard.append([InlineKeyboardButton("🔙 Назад к выбору услуги", callback_data="back_to_service")])
+    keyboard.append([InlineKeyboardButton("Назад к выбору услуги", callback_data="back_to_service")])
 
     await query.edit_message_text(
         f"Выбрана услуга: <b>{service['name']}</b>\n\nВыберите мастера:",
@@ -77,17 +75,17 @@ async def select_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     return SELECT_MASTER
 
+# Выбор мастера и переход к выбору дня
 async def select_master(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработка выбора мастера -> переход к выбору дня"""
     query = update.callback_query
     await query.answer()
 
     # Обработка кнопки "Назад к выбору услуги"
     if query.data == "back_to_service":
         keyboard = [
-            [InlineKeyboardButton("💇 Стрижка", callback_data="service_haircut")],
-            [InlineKeyboardButton("💅 Маникюр", callback_data="service_manicure")],
-            [InlineKeyboardButton("🧖‍♀️ Массаж", callback_data="service_massage")],
+            [InlineKeyboardButton("Стрижка", callback_data="service_haircut")],
+            [InlineKeyboardButton("Маникюр", callback_data="service_manicure")],
+            [InlineKeyboardButton("Массаж", callback_data="service_massage")],
         ]
 
         await query.edit_message_text(
@@ -104,7 +102,7 @@ async def select_master(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # Проверяем, есть ли данные об услуге
             if 'service' not in context.user_data:
-                await query.edit_message_text("❌ Ошибка: данные об услуге утеряны")
+                await query.edit_message_text("Ошибка: данные об услуге утеряны")
                 return ConversationHandler.END
 
             service_type = context.user_data['service']['type']
@@ -112,7 +110,7 @@ async def select_master(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # Проверяем корректность индекса
             if master_idx < 0 or master_idx >= len(masters):
-                await query.edit_message_text("❌ Ошибка: неверный индекс мастера")
+                await query.edit_message_text("Ошибка: неверный индекс мастера")
                 return ConversationHandler.END
 
             selected_master = masters[master_idx]
@@ -126,7 +124,6 @@ async def select_master(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 current_date = today + timedelta(days=day_offset)
                 date_str = current_date.strftime("%d.%m.%Y")
 
-                # Русские дни недели
                 weekdays_ru = {
                     "Monday": "Понедельник",
                     "Tuesday": "Вторник",
@@ -148,7 +145,7 @@ async def select_master(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ])
 
             # Кнопка возврата к выбору мастера
-            keyboard.append([InlineKeyboardButton("🔙 Выбрать другого мастера", callback_data="back_to_master")])
+            keyboard.append([InlineKeyboardButton("Выбрать другого мастера", callback_data="back_to_master")])
 
             await query.edit_message_text(
                 f"Услуга: <b>{context.user_data['service']['name']}</b>\n"
@@ -162,17 +159,16 @@ async def select_master(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         except (ValueError, IndexError, KeyError) as e:
             await query.edit_message_text(
-                "❌ Произошла ошибка при выборе мастера\n"
+                "Произошла ошибка при выборе мастера\n"
                 "Пожалуйста, начните заново с /start"
             )
             return ConversationHandler.END
 
-    await query.edit_message_text("❌ Неизвестная команда")
+    await query.edit_message_text("Неизвестная команда")
     return ConversationHandler.END
 
-# ========== СОСТОЯНИЕ 3: Выбор дня ==========
+#Выбор дня и переход к выбору времени
 async def select_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработка выбора дня -> переход к выбору времени"""
     query = update.callback_query
     await query.answer()
 
@@ -187,7 +183,7 @@ async def select_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
             keyboard.append([InlineKeyboardButton(master, callback_data=f"master_{idx}")])
 
         # Кнопка возврата к выбору услуги
-        keyboard.append([InlineKeyboardButton("🔙 Назад к выбору услуги", callback_data="back_to_service")])
+        keyboard.append([InlineKeyboardButton("Назад к выбору услуги", callback_data="back_to_service")])
 
         await query.edit_message_text(
             f"Выберите мастера для услуги {service['name']}:",
@@ -207,12 +203,12 @@ async def select_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
             date_obj = datetime.strptime(date_str, "%Y-%m-%d")
             context.user_data['selected_day_display'] = date_obj.strftime("%d.%m.%Y")
         except ValueError:
-            await query.edit_message_text("❌ Ошибка формата даты")
+            await query.edit_message_text("Ошибка формата даты")
             return ConversationHandler.END
 
         # Генерируем временные слоты (каждые 2 часа с 10:00 до 18:00)
         time_slots = []
-        for hour in range(10, 20, 2):  # 10:00, 12:00, 14:00, 16:00, 18:00
+        for hour in range(10, 20, 2):
             time_slots.append(f"{hour:02d}:00")
 
         # Создаем кнопки времени
@@ -225,7 +221,7 @@ async def select_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 row = []
 
         # Кнопка возврата к выбору дня
-        keyboard.append([InlineKeyboardButton("🔙 Выбрать другой день", callback_data="back_to_day")])
+        keyboard.append([InlineKeyboardButton("Выбрать другой день", callback_data="back_to_day")])
 
         await query.edit_message_text(
             f"Услуга: <b>{context.user_data['service']['name']}</b>\n"
@@ -238,12 +234,11 @@ async def select_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         return SELECT_TIME
 
-    await query.edit_message_text("❌ Неизвестная команда")
+    await query.edit_message_text("Неизвестная команда")
     return ConversationHandler.END
 
-# ========== СОСТОЯНИЕ 4: Выбор времени ==========
+#Выбор времени и завершение записи
 async def select_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработка выбора времени -> завершение записи"""
     query = update.callback_query
     await query.answer()
 
@@ -278,7 +273,7 @@ async def select_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ])
 
         # Кнопка возврата к выбору мастера
-        keyboard.append([InlineKeyboardButton("🔙 Выбрать другого мастера", callback_data="back_to_master")])
+        keyboard.append([InlineKeyboardButton("Выбрать другого мастера", callback_data="back_to_master")])
 
         await query.edit_message_text(
             f"Услуга: <b>{context.user_data['service']['name']}</b>\n"
@@ -297,33 +292,31 @@ async def select_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # Формируем итоговое сообщение
         summary = (
-            "✅ <b>Запись успешно оформлена!</b>\n\n"
-            f"📋 Услуга: {context.user_data['service']['name']}\n"
-            f"👨‍🏫 Мастер: {context.user_data['master']}\n"
-            f"📅 Дата: {context.user_data['selected_day_display']}\n"
-            f"⏰ Время: {selected_time}\n\n"
-            "Ждем вас в салоне! 🎉"
+            "<b>Запись успешно оформлена!</b>\n\n"
+            f"Услуга: {context.user_data['service']['name']}\n"
+            f"Мастер: {context.user_data['master']}\n"
+            f"Дата: {context.user_data['selected_day_display']}\n"
+            f"Время: {selected_time}\n\n"
+            "Ждем вас в салоне!"
         )
 
         await query.edit_message_text(summary, parse_mode='HTML')
 
         # Логируем запись
-        print(f"\n{'='*50}")
         print("НОВАЯ ЗАПИСЬ:")
         print(f"  Услуга: {context.user_data['service']['name']}")
         print(f"  Мастер: {context.user_data['master']}")
         print(f"  Дата: {context.user_data['selected_day_display']}")
         print(f"  Время: {selected_time}")
         print(f"  Пользователь: {query.from_user.full_name}")
-        print(f"{'='*50}\n")
 
         return ConversationHandler.END
 
-    await query.edit_message_text("❌ Неизвестная команда")
+    await query.edit_message_text("Неизвестная команда")
     return ConversationHandler.END
 
 def main():
-    """Запуск бота"""
+    # Запуск бота
     TOKEN = "8505727530:AAGXfjTIbL7nZ6ckSTX4RcPD_c_r2L_TYqQ"
 
     # Правильное создание Application с использованием create
